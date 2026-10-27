@@ -1,0 +1,75 @@
+# VersionGate configuration.
+# Created on first startup. Edits apply with /versiongate reload and do not
+# require a proxy restart. If this file fails to parse, the previous
+# configuration stays active.
+#
+# Commands:
+#   /versiongate reload   permission versiongate.reload
+#   /versiongate info     permission versiongate.info
+# Bypass permission, read only when bypass-permission-enabled is true:
+#   versiongate.bypass
+
+# range: allow every protocol from min-protocol through max-protocol, inclusive.
+# list: allow or block only the entries under protocols.
+mode: range
+
+# Lowest and highest protocol to allow when mode is range.
+# A quoted version name is accepted as well as a raw protocol number.
+# Quote names. An unquoted 1.8 is a YAML decimal, not the version 1.8.
+# Examples: 4, 47, "1.7.2", "1.8.9"
+#
+# Protocol 4 is 1.7.2 through 1.7.5.
+# Protocol 5 is 1.7.6 through 1.7.10.
+# Protocol 47 is 1.8 through 1.8.9.
+# The default range allows every 1.7.2-1.8.9 client and blocks 1.9 and newer.
+min-protocol: 4
+max-protocol: 47
+
+# Used when mode is list.
+# whitelist: only the listed protocols may connect.
+# blacklist: every protocol except the listed ones may connect.
+list-type: whitelist
+
+# Protocol numbers and quoted version names. Examples:
+#   - 4
+#   - 5
+#   - 47
+#   - "1.7.10"
+#   - "1.8.9"
+# A name Velocity does not know is skipped and a warning is logged.
+# A number is kept even when this proxy build has no name for it.
+protocols: []
+
+# Velocity reports a client it does not recognize as ProtocolVersion.UNKNOWN,
+# protocol -1. -1 is below any normal maximum, so a check that only rejects
+# protocols above max-protocol would allow that client. When this is true,
+# unknown clients are denied before the range or list is considered. When
+# this is false, they are allowed even though -1 is outside the range.
+block-unknown-versions: true
+
+# Disconnect reason, in MiniMessage.
+# <version> is the client version Velocity reported.
+# <allowed> describes the versions this configuration permits.
+kick-message: "<red>Your client <white><version></white> is not allowed on this network.<newline><gray>Allowed versions: <white><allowed></white></gray>"
+
+# Usernames that skip the version check, matched case-insensitively.
+# Checked on whichever login event is active. No permission is required.
+bypass-usernames: []
+
+# When false, the check runs during PreLoginEvent. That event has a username
+# and a connection, and it has no Player, so permissions cannot be read there.
+# When true, PreLoginEvent is skipped and the check runs during LoginEvent,
+# where versiongate.bypass can be evaluated.
+bypass-permission-enabled: false
+
+# Log each denied connection with the username, address, and protocol.
+log-blocked-attempts: true
+
+# When true, a blocked client sees an incompatible-version label in the
+# server list instead of a normal player count. The client can still open a
+# connection. The login check is what disconnects it.
+update-server-list-ping: true
+
+# Plain text for that server-list label. <allowed> is replaced with the same
+# description used in the kick message. This value is not MiniMessage.
+ping-version-label: "Requires <allowed>"
